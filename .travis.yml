@@ -1,0 +1,25 @@
+language: python
+python:
+  - 2.7
+
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - REPO=wangkexiong/gitbook
+    - secure: H/Qdyy/t7/ccBU0WYqGl9epHtuYgNzB3SuzFn+Cb6YB7DugZ+T/Fdqsslps9+llK4WQe/soPn0IX535BMK72wt3Vm/Cz60ffPtgBQoz1oM3fSrNDsp9vahH/eEwPCh537pZRsJOVUkKVJfaYpywtGJw5FSRAAjuj75rvLg/Qw0aI+mslP0nuWZAAkc/pZjWgAFV+4loOzZl1SpQJi+ft0o/6MBF8Dd7LmaUD5cxKeHphiRpxUtXRW9tgx3fKnx2P09fSmQ8cu1ygGyMKWx7412dDwyfOaA3JV9fKalHK4QCD2CyunQ22h4pxgPzJ/wB+k2hSd0yU0B87f8m7GjKH74H/AbmumhC75Rxdr9bY11ACKCmyE6eS7kwNijFu1H4Fqe8OeLO7ynoVR/Va8S3iqwP7DwFEqhKL3DRpOzQFeaI3x6paQMj7G1xhLHcMqTJdMT/zimed6UzGmZj0cc2/OC4wJyQ4bGYbqcHIRwWOxxFvedyLTe7+t1bHFoHyVscwvA48uW5vCcFGD4SRVmFPMURrXJtDjw98BL4QeU0rfhQjKRjVkp5McDbdNiHpf+G/2Xh03HC21bdUh+yedsyS8gSS9XFR0QQ6IJ25wFzgSjtiY/Np2iecJnD91daEvjUGbVidUHwzh3T2O3Bfwl131r4qdzsjoywv0ZoNsPQG+CY=
+    - secure: eTIVbiGkn+Z3EM84zyR/9pWTSeSQ6fVyzbzHYGa6Ix7ixVSn6GBuX8jlkOcxoRxK6n+fiQWrsQ8Ov6xm0Dal3E/rV9q+UmGTh/W1+8iDoDnn7mtT8t4Jft4barP43Po9SMrxlMeidtQ8xVywjljLuWEtvs+aPI7KD1ijdeNoesHMnFCFc8XQ09uDMuOfc6I3a9xnVAYLA3L5wxABRSiFTmrbiyo9yAuJ5vUN4P5QZI2HJA9uFuhxK8Ty6GoWDhG+ZGXl6ckhmA3ylB2G92o9nOhk+nHi01FPlTtYmT1nAEf6dqt04j+pr8I4VoFmulhev533pot2Kcjaku+725k7kWUrpyFkQHmTrpm1K7sWtXQ9KuAW3JenaJS90qiQf9IluH18Frj2RL7sXZxlL8mASIsyW09YBEmdz0wOaY/yX9kc23HI8zbWmi+9jc9mDSmjkJoBVykL1r7tUkLjWwGrvslOIbSLkM7a0Mp4oIAXG/bp+JHSuPZzXWCu5n4clnFkOB/kvNP1EqCEFAI9RKCTtPSN5dxQZ3EoVYrqxiOpVG6hVeeyuBK3zVyEc7Ztn8dT5M2WZ20mGiXWAjudCtW8eqsu00ePeVMxqTTdxfN1dqx79rw2e0ZukHIr7ThgGK5xXyOWrZpqRymCe2kAsLdkgVHgskMRW9IrtdMKmY2KuVE=
+
+services:
+  - docker
+
+install:
+  - docker build -t $REPO:$COMMIT .
+script:
+  - docker run -t $REPO:$COMMIT gitbook ls
+
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker push $REPO:$TAG
+
